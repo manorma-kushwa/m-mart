@@ -45,7 +45,7 @@ const CategoryScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../src/assets/background.jpeg')}
+      source={require('../assets/background.jpeg')}
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
@@ -53,7 +53,7 @@ const CategoryScreen = () => {
           <Text style={styles.title}>Categories</Text>
         </View>
         {loading ? (
-          <ActivityIndicator size="large" color="#FFFFFF" />
+          <ActivityIndicator size="24" color="rgb(62,50,58)" />
         ) : (
           <FlatList
             data={categories}

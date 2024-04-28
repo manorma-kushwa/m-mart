@@ -59,7 +59,7 @@ const ProductListScreen = ({ route }) => {
 
     return (
         <ImageBackground
-            source={require('../src/assets/background.jpeg')}
+            source={require('../assets/background.jpeg')}
             style={styles.backgroundImage}
         >
             <View style={styles.container}>
@@ -67,7 +67,7 @@ const ProductListScreen = ({ route }) => {
                     <Text style={styles.title}>{category}</Text>
                 </View>
                 {loading ? (
-                    <ActivityIndicator size="large" color="#FFFFFF" />
+                    <ActivityIndicator size="24" color="rgb(62,50,58)" />
                 ) : (
                     <FlatList
                         data={products}
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: 'rgb(62,50,58)',
-        textTransform:'uppercase',
+        textTransform: 'uppercase',
         textAlign: 'center',
     },
     productList: {
@@ -114,12 +114,12 @@ const styles = StyleSheet.create({
     productItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f7e9d0', 
+        backgroundColor: '#f7e9d0',
         borderRadius: 8,
         marginBottom: 12,
         padding: 12,
-        borderBottomWidth:4,
-        borderBottomColor:'#805D45'
+        borderBottomWidth: 4,
+        borderBottomColor: '#805D45'
     },
     productImage: {
         width: 80,
@@ -143,20 +143,20 @@ const styles = StyleSheet.create({
         color: '#rgb(62,50,58)',
     },
     backButton: {
-        marginTop:10,
-        borderTopWidth:2,
-        borderTopColor:'#805D45'
+        marginTop: 10,
+        borderTopWidth: 2,
+        borderTopColor: '#805D45'
     },
     backButtonText: {
         backgroundColor: '#805D45',
         paddingVertical: 12,
         width: '100%',
-        alignSelf:'center',
+        alignSelf: 'center',
         fontSize: 16,
         fontWeight: 'bold',
         color: '#ffffff',
         textTransform: 'uppercase',
-        textAlign:'center',
+        textAlign: 'center',
     },
 });
 

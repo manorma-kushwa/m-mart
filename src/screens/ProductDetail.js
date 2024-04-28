@@ -78,7 +78,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../src/assets/background.jpeg')}
+      source={require('../assets/background.jpeg')}
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
@@ -92,7 +92,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
           keyboardShouldPersistTaps="handled" // Allow tapping on components without dismissing keyboard
         >
           {loading ? (
-            <ActivityIndicator size="large" color="#FFFFFF" />
+            <ActivityIndicator size="24" color="rgb(62,50,58)" />
           ) : product ? (
             <>
               {product.image && (
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  }, 
+  },
   titleContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     paddingHorizontal: 16,
@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   Producttitle: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     fontSize: 18,
     fontWeight: 'bold',
     color: 'rgb(62,50,58)',
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   descriptionScrollView: {
     maxHeight: 235,
     padding: 10,
-    backgroundColor:'rgba(194, 166, 145, 0.41)'
+    backgroundColor: 'rgba(194, 166, 145, 0.41)'
   },
   descriptionText: {
     fontSize: 16,
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: '100%',
-    height: 250,
+    height: 300,
     marginBottom: 10,
   },
   errorText: {
@@ -205,10 +206,10 @@ const styles = StyleSheet.create({
   backButton: {
     backgroundColor: '#805D45',
     padding: 12,
-    margin:5,
+    margin: 5,
     alignSelf: 'center',
     width: '40%',
-    borderRadius:10
+    borderRadius: 10
   },
   backButtonText: {
     fontSize: 16,
