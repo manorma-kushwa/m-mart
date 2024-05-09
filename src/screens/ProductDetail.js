@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, ImageBackground, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { addProduct } from '../redux/cartSlice';
+import { useDispatch } from 'react-redux';
 
 const ProductDetailScreen = ({ route, navigation }) => {
   const { productId } = route.params;
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch(); 
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -43,33 +46,30 @@ const ProductDetailScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
+  
   const handleAddToCart = async () => {
     if (product) {
       try {
         const storedCartItems = await AsyncStorage.getItem('cartItems');
         const cartItems = storedCartItems ? JSON.parse(storedCartItems) : [];
 
-        const existingItem = cartItems.find(item => item.id === product.id);
+        const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
 
-        if (!existingItem) {
-          const updatedCartItems = [
-            ...cartItems,
-            { ...product, quantity: 1 }
-          ];
-
+        if (existingItemIndex === -1) {
+          // If the product is not in the cart, add it with quantity 1
+          const updatedCartItems = [...cartItems, { ...product, quantity: 1 }];
           await AsyncStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-          navigation.navigate('Shopping Cart');
         } else {
-          const updatedCartItems = cartItems.map(item => {
-            if (item.id === product.id) {
-              return { ...item, quantity: item.quantity + 1 };
-            }
-            return item;
-          });
-
-          await AsyncStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-          navigation.navigate('Shopping Cart');
+          // If the product is already in the cart, update its quantity
+          cartItems[existingItemIndex].quantity++;
+          await AsyncStorage.setItem('cartItems', JSON.stringify(cartItems));
         }
+
+        // Dispatch action to add item to Redux store
+        dispatch(addProduct({ ...product, quantity: 1 }));
+
+        // Navigate to the shopping cart page
+        navigation.navigate('ShoppingCart');
       } catch (error) {
         console.error('Error adding item to cart:', error);
       }
@@ -87,9 +87,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
         </View>
         <ScrollView
           contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false} // Disable vertical scroll indicator
-          scrollEnabled={!loading} // Disable scrolling while loading
-          keyboardShouldPersistTaps="handled" // Allow tapping on components without dismissing keyboard
+          showsVerticalScrollIndicator={false} 
+          scrollEnabled={!loading}
+          keyboardShouldPersistTaps="handled"
         >
           {loading ? (
             <ActivityIndicator size="24" color="rgb(62,50,58)" />
@@ -199,9 +199,9 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    borderTopWidth: 2,
-    borderTopColor: '#805D45',
-    backgroundColor: 'rgba(194, 166, 145, 0.41)'
+    // borderTopWidth: 2,
+    // borderTopColor: '#805D45',
+    // backgroundColor: 'rgba(194, 166, 145, 0.41)'
   },
   backButton: {
     backgroundColor: '#805D45',
