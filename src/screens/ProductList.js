@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, ImageBackground, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { API_BASE_URL } from '@env';
 
 const ProductListScreen = ({ route }) => {
     const { category } = route.params;
@@ -11,7 +12,7 @@ const ProductListScreen = ({ route }) => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetch(`https://fakestoreapi.com/products/category/${category}`);
+                const response = await fetch(`${API_BASE_URL + 'products/category/'+ category}`);
                 const data = await response.json();
                 setProducts(data);
                 setLoading(false);

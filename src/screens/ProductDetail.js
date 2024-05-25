@@ -3,19 +3,20 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIn
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addProduct } from '../redux/cartSlice';
 import { useDispatch } from 'react-redux';
+import { API_BASE_URL } from '@env';
+import axios from 'axios';
 
 const ProductDetailScreen = ({ route, navigation }) => {
   const { productId } = route.params;
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`https://fakestoreapi.com/products/${productId}`);
+        const response = await fetch(`${API_BASE_URL + 'products/'+ productId}`);
         const data = await response.json();
-
         const productWithImage = {
           ...data,
           image: data.image ? data.image : 'https://via.placeholder.com/200',
@@ -46,33 +47,47 @@ const ProductDetailScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  
+
   const handleAddToCart = async () => {
     if (product) {
       try {
         const storedCartItems = await AsyncStorage.getItem('cartItems');
         const cartItems = storedCartItems ? JSON.parse(storedCartItems) : [];
-
         const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
-
         if (existingItemIndex === -1) {
-          // If the product is not in the cart, add it with quantity 1
           const updatedCartItems = [...cartItems, { ...product, quantity: 1 }];
           await AsyncStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
+          AddCartServer(updatedCartItems);
         } else {
-          // If the product is already in the cart, update its quantity
           cartItems[existingItemIndex].quantity++;
           await AsyncStorage.setItem('cartItems', JSON.stringify(cartItems));
+          AddCartServer(cartItems);
         }
-
-        // Dispatch action to add item to Redux store
         dispatch(addProduct({ ...product, quantity: 1 }));
-
-        // Navigate to the shopping cart page
-        navigation.navigate('ShoppingCart');
+        navigation.navigate('My Carts');
       } catch (error) {
         console.error('Error adding item to cart:', error);
       }
+    }
+  };
+
+  const AddCartServer = async (product) => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios.put(`${API_BASE_URL + 'cart'}`, {
+        items: product
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        console.log('Success', 'Item added to Cart successfully.');
+      } else {
+        console.log('Error', 'Failed to Add');
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -87,7 +102,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
         </View>
         <ScrollView
           contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false} 
+          showsVerticalScrollIndicator={false}
           scrollEnabled={!loading}
           keyboardShouldPersistTaps="handled"
         >

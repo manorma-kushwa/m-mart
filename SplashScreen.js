@@ -4,7 +4,7 @@ import { ImageBackground, StyleSheet } from 'react-native';
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate('CategoryScreen');
+      navigation.navigate('User');
     }, 2000);
 
     return () => clearTimeout(timer);

@@ -33,10 +33,15 @@ const cartSlice = createSlice({
         state.itemCount += itemDifference;
         itemToUpdate.quantity = newQuantity;
       }
+    },
+    storeApiData(state, action) {
+      const items = action.payload;
+      state.items = items;
+      state.itemCount = items.reduce((total, item) => total + item.quantity, 0);
     }
   }
 });
 
-export const { addProduct, removeProduct, updateProductQuantity } = cartSlice.actions;
+export const { addProduct, removeProduct, updateProductQuantity,storeApiData } = cartSlice.actions;
 
 export default cartSlice.reducer;

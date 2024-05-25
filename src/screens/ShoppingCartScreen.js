@@ -1,8 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeProduct, updateProductQuantity } from '../redux/cartSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { API_BASE_URL } from '@env';
+import { storeApiData } from '../redux/cartSlice';
 
 const ShoppingCartScreen = () => {
   const cartItems = useSelector(state => state.cart.items);
@@ -32,9 +35,71 @@ const ShoppingCartScreen = () => {
   const updateCartInStorage = async (updatedCartItems) => {
     try {
       await AsyncStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
+      AddCartServer(updatedCartItems);
     } catch (error) {
       console.error('Error updating cart in AsyncStorage:', error);
     }
+  };
+
+  const updateCart = async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios.post(`${API_BASE_URL + 'orders/neworder'}`, {
+        items: cartItems
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        Alert.alert('Success', 'Order is placed successfully.');
+        await AsyncStorage.removeItem('cartItems');
+        dispatch(storeApiData([]));
+        AddCartServer([]);
+      } else {
+        Alert.alert('Error', 'Failed to order');
+      }
+    } catch (error) {
+      console.error('Error updating order:', error);
+      Alert.alert('Error', 'Failed to order. Please try again later.');
+    }
+  };
+
+
+  const AddCartServer = async (product) => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios.put(`${API_BASE_URL + 'cart'}`, {
+        items: product
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        console.log('Success', 'Item updated to Cart successfully.');
+      } else {
+        console.log('Error', 'Failed to update');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    try {
+      const response = await axios.get(`${API_BASE_URL + 'orders/all'}`, {
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+      });
+      const data = await response.data;
+      const parsedOrders = data.orders.map(order => ({
+          ...order,
+          order_items: JSON.parse(order.order_items)
+      }));
+      const newOrders = parsedOrders.filter(order => order.is_paid === 0 && order.is_delivered === 0);
+      dispatch({ type: 'SET_ORDER_COUNT', payload: newOrders.length });
+  } catch (error) {
+      console.error('Error fetching order', error);
+  }
   };
 
   const renderCartItem = ({ item }) => (
@@ -52,9 +117,9 @@ const ShoppingCartScreen = () => {
             <Text style={styles.quantityButton}>+</Text>
           </TouchableOpacity>
         </View>
-        {/* <TouchableOpacity onPress={() => handleRemoveItem(item.id)} style={styles.removeButton}>
+        <TouchableOpacity onPress={() => handleRemoveItem(item.id)} style={styles.removeButton}>
           <Text style={styles.removeButtonText}>Remove</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -62,6 +127,7 @@ const ShoppingCartScreen = () => {
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   const totalItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  // console.log(cartItems);
   return (
     <ImageBackground
       source={require('../assets/background.jpeg')}
@@ -82,11 +148,18 @@ const ShoppingCartScreen = () => {
               keyExtractor={(item) => item.id.toString()}
               renderItem={renderCartItem}
             />
-
           </>
         ) : (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Your cart is empty</Text>
+          </View>
+        )}
+        {cartItems.length > 0 && (
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total: ${totalPrice.toFixed(2)}</Text>
+            <TouchableOpacity onPress={() => updateCart()}>
+              <Text style={styles.proceedButton}>Proceed to Checkout</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
@@ -196,10 +269,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
-    borderTopWidth: 2,
-    borderTopColor: '#805D45',
-    borderBottomWidth: 2,
-    borderBottomColor: '#805D45',
     padding: 10,
     backgroundColor: '#f7e9d0',
     marginBottom: 20,
@@ -207,6 +276,21 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  totalContainer:{
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding:7,
+      backgroundColor: '#f7e9d0',
+  },
+  proceedButton: {
+    fontSize: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    backgroundColor: '#805D45',
+    color: '#FFFFFF',
+    borderRadius: 10,
+    margin:7
   },
 });
 
