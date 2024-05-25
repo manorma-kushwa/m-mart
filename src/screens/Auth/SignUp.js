@@ -28,7 +28,7 @@ const SignUp = ({ navigation }) => {
                 email,
                 password,
             });
-            if (response.status != 'error') {
+            if (response.data.status != 'error') {
                 Alert.alert('Success', 'Signed up successfully');
                 await AsyncStorage.setItem('email', response.data.email);
                 await AsyncStorage.setItem('name', response.data.name);

@@ -64,7 +64,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
           AddCartServer(cartItems);
         }
         dispatch(addProduct({ ...product, quantity: 1 }));
-        navigation.navigate('My Carts');
+        // navigation.navigate('My Carts');
       } catch (error) {
         console.error('Error adding item to cart:', error);
       }

@@ -37,7 +37,7 @@ const Profile = ({ navigation }) => {
         }
         try {
             const response = await axios.post(`${API_BASE_URL + 'users/update'}`, {
-                name,
+                name: newName,
                 password,
             }, {
                 headers: {
